@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next-Gen Learning Dashboard
 
-## Getting Started
+A high-fidelity, highly animated "Student Dashboard" prototype built for the Frontend Intern Challenge. This project demonstrates modern "new edge" design principles, featuring hardware-accelerated animations, a zero layout shift philosophy, and seamless server-rendered data integration.
 
-First, run the development server:
+## 🚀 Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Framework**: Next.js (App Router)
+- **Database/BaaS**: Supabase
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🧠 Architectural Choices
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Server vs. Client Components (RSC Architecture)
+To ensure optimal performance and security, this application strictly separates data-fetching concerns from interactive UI elements:
+- **Server Components (`app/page.tsx`, `app/courses/page.tsx`, `app/activity/page.tsx`)**: These pages securely connect to Supabase using `@supabase/ssr` to fetch initial data payloads (like active courses, user stats, and hourly usage). Because this runs on the server, no sensitive database keys or heavy fetching libraries are shipped to the client, resulting in incredibly fast initial page loads.
+- **Client Components (`HeroTile`, `CourseCard`, `DetailedActivity`)**: Interactive and animated components are marked with `"use client"`. They receive the server-fetched data as initial props and handle the Framer Motion animations and real-time state updates locally.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Semantic HTML & Accessibility
+Avoiding "div soup" was a priority. The UI is built using strict semantic tags:
+- `<aside>` and `<nav>` for the responsive sidebar.
+- `<main>` for the core layout container.
+- `<section>` for the Bento Grid wrapper.
+- `<article>` for individual, self-contained dashboard tiles (Hero, Activity, Course Cards).
 
-## Learn More
+### Zero Layout Shifts
+Hover states and entrance animations use exclusively `transform` (scale, translate) and `opacity`. This ensures that animations are hardware-accelerated by the GPU and never trigger expensive browser layout recalculations or repaints.
 
-To learn more about Next.js, take a look at the following resources:
+### Premium Aesthetic & Responsive Design
+The UI features a deep dark-mode theme utilizing true glassmorphism (`backdrop-blur-2xl`), subtle inset shadows (`ring-1 ring-inset`), and dynamically animated gradient meshes for depth.
+The layout is flawlessly responsive:
+- **Desktop**: Full left sidebar.
+- **Tablet**: Sidebar elegantly collapses to icons only.
+- **Mobile**: Sidebar transforms into a fixed native-feeling bottom navigation bar.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 💾 Database Setup (Supabase)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+You will need a free Supabase project to run this dashboard. The database schema requires two tables:
 
-## Deploy on Vercel
+1. `courses` (id, title, progress, icon_name, created_at)
+2. `user_stats` (id, current_streak, hours_learned, modules_completed)
+3. `hourly_usage` (id, hour, activity, sort_order)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+*Note: Realtime must be enabled for `user_stats` and `hourly_usage` via `alter publication supabase_realtime add table [table_name];`.*
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 💻 Getting Started
+
+1. Clone the repository.
+2. Run `npm install`.
+3. Copy `.env.example` to `.env.local` and add your Supabase URL and Anon Key.
+4. Run `npm run dev` to start the development server.
