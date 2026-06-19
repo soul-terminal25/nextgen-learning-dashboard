@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 
+import ParallaxStarsBackground from "@/components/ParallaxStarsBackground";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -17,7 +19,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} min-h-screen antialiased bg-[#050505] text-slate-100 relative selection:bg-indigo-500/30`}>
+      <body className={`${inter.className} min-h-screen antialiased text-slate-100 relative selection:bg-indigo-500/30`}>
+        <ParallaxStarsBackground speed={0.5} />
         <Sidebar />
         {/* 
           Responsive padding:
