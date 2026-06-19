@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 
 export interface ParallaxStarsBackgroundProps {
   className?: string;
@@ -9,8 +9,6 @@ export interface ParallaxStarsBackgroundProps {
 
 // Helper to generate random box shadows
 const generateBoxShadows = (n: number) => {
-  // Use a fixed max size matching standard screen to prevent overflow artifacts,
-  // but let's stick to the 2000px bounds as provided in the reference.
   let value = `${Math.floor(Math.random() * 2000)}px ${Math.floor(Math.random() * 2000)}px #FFF`;
   for (let i = 2; i <= n; i++) {
     value += `, ${Math.floor(Math.random() * 2000)}px ${Math.floor(Math.random() * 2000)}px #FFF`;
@@ -22,10 +20,30 @@ export default function ParallaxStarsBackground({
   className = "",
   speed = 1
 }: ParallaxStarsBackgroundProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Memoize shadows so they don't regenerate on re-renders
-  const shadowsSmall = useMemo(() => generateBoxShadows(700), []);
-  const shadowsMedium = useMemo(() => generateBoxShadows(200), []);
-  const shadowsBig = useMemo(() => generateBoxShadows(100), []);
+  const shadowsSmall = useMemo(() => mounted ? generateBoxShadows(700) : "", [mounted]);
+  const shadowsMedium = useMemo(() => mounted ? generateBoxShadows(200) : "", [mounted]);
+  const shadowsBig = useMemo(() => mounted ? generateBoxShadows(100) : "", [mounted]);
+
+  // Render a static background gradient during SSR to avoid hydration errors
+  if (!mounted) {
+    return (
+      <div className={`fixed inset-0 w-full h-screen overflow-hidden z-[-1] pointer-events-none bg-[#090A0F] ${className}`}>
+        <style>{`
+          .bg-radial-space {
+            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+          }
+        `}</style>
+        <div className="absolute inset-0 bg-radial-space z-0" />
+      </div>
+    );
+  }
 
   return (
     <div className={`fixed inset-0 w-full h-screen overflow-hidden z-[-1] pointer-events-none bg-[#090A0F] ${className}`}>
